@@ -11,19 +11,19 @@ Convert2Daily <- function(str) {
    str$Date <- rwrfhydro::CalcDateTrunc(str$POSIXct)
    setkey(str, Date)
    str.d <- str[, list(q_cms=mean(q_cms, na.rm=TRUE)), by = "Date"]
-   str.d$POSIXct <- as.POSIXct(paste0(str.d$Date, " 00:00"), tz="UTC")
+   str.d$POSIXct <- as.POSIXct(paste0(str.d$Date, " 08:00"), tz="UTC")
    str.d
 }
 
 # Read streamflow from netcdf file
 
-ReadChFile <- function(file, idList){
-    nc <- ncdf4::nc_open(file)
-    output <- data.frame(q_cms = ncdf4::ncvar_get(nc, varid = "streamflow", start = idList , count =1),
-                         POSIXct = as.POSIXct(strsplit(basename(file),"[.]")[[1]][1], format = "%Y%m%d%H%M", tz = "UTC"))
-    ncdf4::nc_close(nc)
-    return(output)
-}
+#ReadChFile <- function(file, idList){
+#    nc <- ncdf4::nc_open(file)
+#    output <- data.frame(q_cms = ncdf4::ncvar_get(nc, varid = "streamflow", start = idList , count =1),
+#                         POSIXct = as.POSIXct(strsplit(basename(file),"[.]")[[1]][1], format = "%Y%m%d%H%M", tz = "UTC"))
+#    ncdf4::nc_close(nc)
+#    return(output)
+#}
 
 
 # DDS parameter selection function
