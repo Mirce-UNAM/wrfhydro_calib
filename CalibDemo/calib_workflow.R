@@ -41,9 +41,9 @@ if (file.exists("proj_data.Rdata")) {
    obsDT$q_cms <- NULL
 
    # Find the index of the gage
-   rtLink <- ReadRouteLink(rtlinkFile)
-   rtLink <- data.table(rtLink)
-   linkId <- which(trimws(rtLink$gages) %in% siteId)
+#   rtLink <- ReadRouteLink(rtlinkFile)
+#   rtLink <- data.table(rtLink)
+#   linkId <- which(trimws(rtLink$gages) %in% siteId)
 
    # Setup value lists from paramBnds
    xnames <- paramBnds$param
@@ -83,17 +83,25 @@ if (cyclecount > 0) {
    print(outPath)
 
    # Read files
-   message("Reading model out files.")
-   system.time({
-   filesList <- list.files(path = outPath,
-                          pattern = glob2rx("*.CHRTOUT_DOMAIN*"),
-                          full.names = TRUE)
-   filesListDate <- as.POSIXct(unlist(plyr::llply(strsplit(basename(filesList),"[.]"), '[',1)), format = "%Y%m%d%H%M", tz = "UTC")
-   whFiles <- which(filesListDate >= startDate)
-   filesList <- filesList[whFiles]
-   if (length(filesList) == 0) stop("No matching files in specified directory.")
-   chrt <- as.data.table(plyr::ldply(filesList, ReadChFile, linkId, .parallel = parallelFlag))
-   })
+#   message("Reading model out files.")
+#   system.time({
+#   filesList <- list.files(path = outPath,
+#                          pattern = glob2rx("*.CHRTOUT_DOMAIN*"),
+#                          full.names = TRUE)
+#   filesListDate <- as.POSIXct(unlist(plyr::llply(strsplit(basename(filesList),"[.]"), '[',1)), format = "%Y%m%d%H%M", tz = "UTC")
+#   whFiles <- which(filesListDate >= startDate)
+#   filesList <- filesList[whFiles]
+#   if (length(filesList) == 0) stop("No matching files in specified directory.")
+#   chrt <- as.data.table(plyr::ldply(filesList, ReadChFile, linkId, .parallel = parallelFlag))
+#   })
+
+   # Read files
+  message("Reading model out files.")
+  frxst <- as.data.table(read.table (paste0(outPath, "/frxst_pts_out.txt"),sep=",",stringsAsFactors=FALSE,
+                       col.names=c("time_sec","POSIXct","stn","lon","lat","q_cms","q_cfs","head")))
+  frxst$POSIXct <- as.POSIXct(frxst$POSIXct,format = "%Y-%m-%d %H:%M:%S",tz="UTC")
+
+  chrt <- subset(frxst, stn == siteId)
 
    # Convert to daily
    chrt.d <- Convert2Daily(chrt)
