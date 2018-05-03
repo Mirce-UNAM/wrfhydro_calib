@@ -1,10 +1,10 @@
 #### Model Parameters ####
 
 # Model run directory
-runDir <- "/glade/scratch/adugger/CONUS_CALIB/CalibDemo/"
+runDir <- "/glade/u/home/mirce/wrf_hydro/wrfhydro_calib/CalibDemo"
 
 # Route link file
-rtlinkFile <- paste0(runDir, "/RUN.TEMPLATE/DOMAIN/RouteLink.nc")
+#rtlinkFile <- paste0(runDir, "/RUN.TEMPLATE/DOMAIN/RouteLink.nc")
 
 
 #### DDS Parameters ####
@@ -24,7 +24,7 @@ paramBnds <- read.table(paste0(runDir, "/param_bnds.txt"), header=TRUE, sep=" ",
 #### Model Evaluation Parameters ####
 
 # Gage ID to extract from the model output and compare against the obs
-siteId <- "02245500"
+siteId <- "2"
 
 # R dataset containing observations
 # Must contain an object called obsDf containing columns:
