@@ -255,7 +255,8 @@ while [ "${counter}" -gt "0" ]; do
    done # done param list
       
    # Run
-   bsub -K < run.csh &
+   #bsub -K < run.csh &
+   qsub run_csh
    wait
    rundone=0
    while [ $rundone -eq 0 ]; do
