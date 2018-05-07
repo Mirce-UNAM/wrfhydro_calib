@@ -13,7 +13,7 @@ runDir <- "/glade/u/home/mirce/wrf_hydro/wrfhydro_calib/CalibDemo"
 r <- 0.2
 
 # Number of iterations (default=1000)
-m <- 500
+m <- 3 #500
 
 # Parameter bounds 
 # Must create a data table called paramBnds with one row per parameter and columns labeled: 
@@ -56,11 +56,11 @@ objFn <- function (m, o, w=0.5, p=1) {  # Negative weighted mean NSE and log NSE
 #}
 
 # Start date for evaluation period (e.g., after spinup period)
-startDate <- as.POSIXct("2008-10-01", format="%Y-%m-%d", tz="UTC")
+startDate <- as.POSIXct("2009-09-01", format="%Y-%m-%d", tz="UTC")
 
 # Archive model run output files?
-archiveOutput <- FALSE
+archiveOutput <- TRUE 
 
 # Archive model run files?
-archiveRun <- FALSE
+archiveRun <- TRUE
 
