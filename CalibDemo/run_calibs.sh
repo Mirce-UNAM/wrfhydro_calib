@@ -6,6 +6,7 @@
 soilfile='soil_properties.nc'
 gwfile='GWBUCKPARM.nc'
 fulldomfile='Fulldom.nc'
+HYDRO_TBL_2Dfile='HYDRO_TBL_2D.nc'
 
 baserundir=`grep -m 1 -F runDir namelist.calib | cut -d "<" -f2 | cut -d "-" -f2`
 echo $baserundir
@@ -17,9 +18,11 @@ paramfile=`echo ${baserundir}/params_new.txt`
 #declare -a soilp_mult_list=('bexp' 'smcmax' 'dksat')
 declare -a soilp_mult_list=('bexp' 'smcmax' 'dksat' 'cwpvt' 'vcmx25' 'mp' 'hvt' 'mfsno')
 declare -a soilp_abs_list=('slope' 'refkdt')
+declare -a hydro2D_mult_list=('LKSAT','SMCMAX1')
+declare -a hydro2D_abs_list=()
 declare -a fulldom_mult_list=()
 declare -a fulldom_abs_list=('RETDEPRTFAC' 'LKSATFAC' 'OVROUGHRTFAC')
-declare -a hydrotab_mult_list=('smcmax' 'dksat')
+declare -a hydrotab_mult_list=()
 declare -a hydrotab_abs_list=()
 declare -a gw_mult_list=()
 declare -a gw_abs_list=('Zmax' 'Expon')
@@ -163,6 +166,7 @@ while [ "${counter}" -gt "0" ]; do
          echo "Reading line" ${pcount} with ${varcnt} params
          IFS=' ' read -r -a varvals <<< "${line}"
       fi
+   echo ${#varvals[@]}
    done < $paramfile
 
    runid=${varvals[0]}
@@ -175,6 +179,17 @@ while [ "${counter}" -gt "0" ]; do
          varnm=`echo $varnm | sed -e 's/\"//g'`
          varval=${varvals[$n]}
          echo ${varnm} ${varval}
+   
+         # Hydro 2D file 
+         if array_contains hydro2D_mult_list ${varnm}; then
+            echo "Updating Hydro 2D file..."
+            ncap2 -O -s "${varnm}=${varnm}*${varval}" DOMAIN/${HYDRO_TBL_2Dfile} DOMAIN/${HYDRO_TBL_2Dfile}
+         fi
+         if array_contains hydro2D_abs_list ${varnm}; then
+            echo "Updating hydro 2D file..."
+            ncap2 -O -s "${varnm}=${varnm}*0.0+${varval}" DOMAIN/${HYDRO_TBL_2Dfile} DOMAIN/${HYDRO_TBL_2Dfile}
+         fi
+
          # Spatial soil properties file
          if array_contains soilp_mult_list ${varnm}; then
             echo "Updating soil file..."
@@ -256,7 +271,7 @@ while [ "${counter}" -gt "0" ]; do
       
    # Run
    #bsub -K < run.csh &
-   qsub run_csh
+   qsub run.csh
    wait
    rundone=0
    while [ $rundone -eq 0 ]; do
