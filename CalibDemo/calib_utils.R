@@ -6,9 +6,15 @@ ReadNamelist <- function(nlist) {
 }
 
 # Convert to daily flow
+CalcDateTrunc <- function (timePOSIXct, timeZone = "UTC") {
+    timeDate <- as.Date(trunc(as.POSIXct(format(timePOSIXct,
+        tz = timeZone), tz = timeZone), "days"))
+    return(timeDate)
+}
+
 
 Convert2Daily <- function(str) {
-   str$Date <- rwrfhydro::CalcDateTrunc(str$POSIXct)
+   str$Date <- CalcDateTrunc(str$POSIXct)
    setkey(str, Date)
    str.d <- str[, list(q_cms=mean(q_cms, na.rm=TRUE)), by = "Date"]
    str.d$POSIXct <- as.POSIXct(paste0(str.d$Date, " 08:00"), tz="UTC")
