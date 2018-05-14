@@ -1,7 +1,7 @@
 #### Model Parameters ####
 
 # Model run directory
-runDir <- "/glade/u/home/mirce/wrf_hydro/wrfhydro_calib/CalibDemo"
+runDir <- "/glade/u/home/mirce/scratch/LaSierra/Test_Calib/CalibDemo"
 
 # Route link file
 #rtlinkFile <- paste0(runDir, "/RUN.TEMPLATE/DOMAIN/RouteLink.nc")
@@ -59,7 +59,7 @@ objFn <- function (m, o, w=0.5, p=1) {  # Negative weighted mean NSE and log NSE
 startDate <- as.POSIXct("2009-09-01", format="%Y-%m-%d", tz="UTC")
 
 # Archive model run output files?
-archiveOutput <- TRUE 
+archiveOutput <- TRUE
 
 # Archive model run files?
 archiveRun <- TRUE
