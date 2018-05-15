@@ -112,7 +112,7 @@ if (cyclecount > 0) {
    # Merge
    setkey(chrt.d, "site_no", "POSIXct")
    setkey(obsDT, "site_no", "POSIXct")
-   chrt.d <- merge(chrt.d, obsDT, by=c("site_no", "POSIXct"), all.x=FALSE, all.y=FALSE)
+   chrt.d <- merge(chrt.d, obsDT, by.x = c("site_no", "Date"), by.y=c("site_no", "POSIXct"), all.x=FALSE, all.y=FALSE)
    F_new <- objFn(chrt.d$q_cms, chrt.d$obs)
    print(F_new)
 
