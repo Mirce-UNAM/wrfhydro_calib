@@ -20,6 +20,9 @@ if (parallelFlag && ncores>1) {
 }
 
 
+# Metrics
+metrics <- c("cor", "rmse", "bias", "nse", "nselog", "nsewt", "kge", "msof")
+
 #########################################################
 # MAIN CODE
 #########################################################
@@ -56,8 +59,8 @@ if (file.exists("proj_data.Rdata")) {
 
    # Initialize parameter archive DF
    message("Initialize parameter archive")
-   x_archive <- as.data.frame(matrix(, nrow=1, ncol=length(xnames)+2))
-   names(x_archive) <- c("id", xnames, "obj")
+   x_archive <- as.data.frame(matrix(, nrow=1, ncol=length(xnames)+2+length(metrics)))
+   names(x_archive) <- c("iter", xnames, "obj", metrics)
 
    # Output parameter set
    x_new <- x0
@@ -116,8 +119,19 @@ if (cyclecount > 0) {
    F_new <- objFn(chrt.d$q_cms, chrt.d$obs)
    print(F_new)
 
+ # Calc stats
+   statCor <- cor(chrt.d$q_cms, chrt.d$obs)
+   statRmse <- Rmse(chrt.d$q_cms, chrt.d$obs, na.rm=TRUE)
+   statBias <- PBias(chrt.d$q_cms, chrt.d$obs, na.rm=TRUE)
+   statNse <- Nse(chrt.d$q_cms, chrt.d$obs, na.rm=TRUE)
+   statNseLog <- NseLog(chrt.d$q_cms, chrt.d$obs, na.rm=TRUE)
+   statNseWt <- NseWt(chrt.d$q_cms, chrt.d$obs)
+   statKge <- Kge(chrt.d$q_cms, chrt.d$obs, na.rm=TRUE)
+   statMsof <- Msof(chrt.d$q_cms, chrt.d$obs)
+
    # Archive results
-   x_archive[cyclecount,] <- c(cyclecount, x_new, F_new)
+  # x_archive[cyclecount,] <- c(cyclecount, x_new, F_new)
+   x_archive[cyclecount,] <- c(cyclecount, x_new, F_new, statCor, statRmse, statBias, statNse, statNseLog, statNseWt, statKge, statMsof)
 
    # Evaluate performance metric
    if (cyclecount == 1) {
@@ -143,7 +157,7 @@ if (cyclecount > 0) {
    if (parallelFlag) stopCluster(cl)
 
    # Update plot
-   gg <- ggplot(data=x_archive, aes(x=id, y=obj)) + 
+   gg <- ggplot(data=x_archive, aes(x=iter, y=obj)) + 
               geom_point() + theme_bw() + 
               labs(x="run", y="objective function")
    ggsave(filename=paste0(writePlotDir, "/", siteId, "_calib_run_obj.png"),
