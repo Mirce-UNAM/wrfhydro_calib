@@ -181,13 +181,28 @@ while [ "${counter}" -gt "0" ]; do
          echo ${varnm} ${varval}
    
          # Hydro 2D file 
-         if array_contains hydro2D_mult_list ${varnm}; then
-            echo "Updating Hydro 2D file..."
-            ncap2 -O -s "${varnm}=${varnm}*${varval}" DOMAIN/${HYDRO_TBL_2Dfile} DOMAIN/${HYDRO_TBL_2Dfile}
+
+         if [ "$varnm"  == "dksat" ]; then
+             echo "Updating HYDRO 2D file... (LKSAT)"
+            varnm2="LKSAT"
+            ncap2 -O -s "${varnm2}=${varnm2}*${varval}" DOMAIN/${HYDRO_TBL_2Dfile} DOMAIN/${HYDRO_TBL_2Dfile}
          fi
-         if array_contains hydro2D_abs_list ${varnm}; then
-            echo "Updating hydro 2D file..."
-            ncap2 -O -s "${varnm}=${varnm}*0.0+${varval}" DOMAIN/${HYDRO_TBL_2Dfile} DOMAIN/${HYDRO_TBL_2Dfile}
+
+         if [ "$varnm"  == "smcmax" ]; then
+            echo "Updating HYDRO 2D file... (SMCMAX)"
+            varnm2="SMCMAX1"
+            ncap2 -O -s "${varnm2}=${varnm2}*${varval}" DOMAIN/${HYDRO_TBL_2Dfile} DOMAIN/${HYDRO_TBL_2Dfile}
+         fi
+
+         if [ "$varnm" != "dksat" ] && [ "$varnm" != "smcmax" ]; then            
+            if array_contains hydro2D_mult_list ${varnm}; then
+               echo "Updating Hydro 2D file..."
+               ncap2 -O -s "${varnm}=${varnm}*${varval}" DOMAIN/${HYDRO_TBL_2Dfile} DOMAIN/${HYDRO_TBL_2Dfile}
+            fi
+            if array_contains hydro2D_abs_list ${varnm}; then
+               echo "Updating hydro 2D file..."
+               ncap2 -O -s "${varnm}=${varnm}*0.0+${varval}" DOMAIN/${HYDRO_TBL_2Dfile} DOMAIN/${HYDRO_TBL_2Dfile}
+            fi
          fi
 
          # Spatial soil properties file
