@@ -100,6 +100,100 @@ gg_color_hue <- function(n) {
    hcl(h = hues, l = 65, c = 100)[1:n]
  }
 
+###----------------- METRICS -------------------###
+
+# RMSE
+Rmse <- function (m, o, na.rm=TRUE) {
+    err <- sum((m - o)^2, na.rm=na.rm)/(min(sum(!is.na(m)),sum(!is.na(o))))
+    rmserr <- sqrt(err)
+    rmserr
+}
+
+# Percent Bias
+PBias <- function (m, o, na.rm=TRUE) {
+    sum(m - o, na.rm=na.rm)/sum(o, na.rm=na.rm) * 100
+}
+
+# NSE
+Nse <- function (m, o, nullModel=mean(o, na.rm=na.rm), na.rm=TRUE) {
+    err1 <- sum((m - o)^2, na.rm=na.rm)
+    err2 <- sum((o - nullModel)^2, na.rm=na.rm)
+    ns <- 1 - (err1/err2)
+    ns
+}
+
+# LogNSE
+NseLog <- function (m, o, nullModel=mean(o, na.rm=na.rm), na.rm=TRUE) {
+    m <- log(m + 1e-04)
+    o <- log(o + 1e-04)
+    err1 <- sum((m - o)^2, na.rm=na.rm)
+    err2 <- sum((o - nullModel)^2, na.rm=na.rm)
+    ns <- 1 - (err1/err2)
+    ns
+}
+
+# Weighted NSE LogNSE
+NseWt <- function (m, o, w=0.5, p=1) {
+    # NSE
+    err1 <- sum((m - o)^2, na.rm=T)
+    err2 <- sum((o - mean(o, na.rm=T))^2, na.rm=T)
+    nse <- 1 - (err1/err2)
+    # Ln NSE
+    lnm <- log(m + 1e-04)
+    lno <- log(o + 1e-04)
+    err1 <- sum((lnm - lno)^2, na.rm=T)
+    err2 <- sum((lno - mean(lno, na.rm=T))^2, na.rm=T)
+    lnnse <- 1 - (err1/err2)
+    # Weighted mean
+    res <- ((w^p) * (nse^p) + (w^p) * (lnnse^p))^(1/p)
+}
+
+# KGE
+Kge <- function (m, o, na.rm=TRUE, s.r=1, s.alpha=1, s.beta=1) {
+  use <- if(na.rm) 'pairwise.complete.obs' else 'everything'
+  r     <- cor(m, o, use=use)
+  alpha <- sd(m, na.rm=na.rm) / sd(o, na.rm=na.rm)
+  beta  <- mean(m, na.rm=na.rm) / mean(o, na.rm=na.rm)
+  eds = sqrt( (s.r*(r-1))^2 + (s.alpha*(alpha-1))^2 + (s.beta*(beta-1))^2 )
+  kges = 1-eds
+}
+# multi-scale objective function (MSOF)
+# There is not limit on the number of scales to be considered
+# The value of scales is defined as the number of time steps of data.
+# For example, given daily data, scales=c(1,10,30) means calculate
+# MSOF based on daily, 10-day, and 30-day time scales; if it is hourly
+# data, scales=c(1,24,72,240,720) means calculate MSOF based on hourly,
+# daily, 3-day, 10-day, and 30-day time scales
+
+Msof <- function(m,o, scales=c(1,10,30))  {
+
+   if (sum(scales<1)>0) stop("Scales (number of time steps) must not be less than 1!")
+
+   ns <- length(scales)
+   n1 <- length(m)
+   n2 <- n1 - n1 %% scales
+   sum0 <- 0
+   for (i in 1:ns) {
+     m1 <- m[1:n2[i]]; o1 <- o[1:n2[i]]
+     if (scales[i]==1) {
+        m2<-m1; o2<-o1
+     } else {
+        # compute model and observation at the prescribed scales
+        m2 <- colMeans(matrix(m1,nrow=scales[i]),na.rm=FALSE)
+        o2 <- colMeans(matrix(o1,nrow=scales[i]),na.rm=FALSE)
+     }
+
+     # remove missing values in the averaged time series
+     # before computing objevtive function
+     idx <- !is.na(m2) & !is.na(o2)
+     m2 <- m2[idx]; o2 <- o2[idx]
+
+     sum0 <- sum0 + sum((m2-o2)^2)*var(o)/var(o2)
+   }
+   obj <- sqrt(sum0)
+}
+
+
 # Multiplot
 # Multiple plot function
 #
