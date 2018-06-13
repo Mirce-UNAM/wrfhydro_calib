@@ -5,8 +5,8 @@
 
 soilfile='soil_properties.nc'
 gwfile='GWBUCKPARM.nc'
-fulldomfile='Fulldom.nc'
-HYDRO_TBL_2Dfile='HYDRO_TBL_2D.nc'
+fulldomfile='Fulldom_hires.nc'
+HYDRO_TBL_2Dfile='hydro2dtbl.nc.ALL'
 
 baserundir=`grep -m 1 -F runDir namelist.calib | cut -d "<" -f2 | cut -d "-" -f2`
 echo $baserundir
