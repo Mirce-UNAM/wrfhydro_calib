@@ -104,6 +104,8 @@ if (cyclecount > 0) {
   frxst <- as.data.table(read.table (paste0(outPath, "/frxst_pts_out.txt"),sep=",",stringsAsFactors=FALSE,
                        col.names=c("time_sec","POSIXct","stn","lon","lat","q_cms","q_cfs","head")))
   frxst$POSIXct <- as.POSIXct(frxst$POSIXct,format = "%Y-%m-%d %H:%M:%S",tz="UTC")
+  # Extra (Time_CST), change only for this particular case where daily is an average from 8:00 to 8:00 Local time
+ frxst$Time_CST <- as.POSIXct(format(frxst$POSIXct, tz="America/Mexico_City",usetz=TRUE))
 
   chrt <- subset(frxst, stn == siteId)
 
@@ -321,6 +323,8 @@ if (any(x_archive$obj > objFunThreshold)) {
    obsStrDataPlot <- copy(obsDT)
    setnames(obsStrDataPlot, "obs", "q_cms")
    obsStrDataPlot <- obsStrDataPlot[, c("Date", "q_cms", "POSIXct", "site_no"), with=FALSE]
+   obsStrDataPlot$POSIXct <- as.POSIXct(paste0(as.character(obsStrDataPlot$POSIXct), "_08"), format= "%Y-%m-%d_%H", tz = "UTC")
+
    obsStrDataPlot <- obsStrDataPlot[as.integer(POSIXct) >= min(as.integer(controlRun$POSIXct)) & as.integer(POSIXct) <= max(as.integer(controlRun$POSIXct)),]
    obsStrDataPlot[ , run := "Observation"]
 
