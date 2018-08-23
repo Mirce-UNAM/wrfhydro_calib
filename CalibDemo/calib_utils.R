@@ -6,21 +6,31 @@ ReadNamelist <- function(nlist) {
 }
 
 # Convert to daily flow
-CalcDateTrunc <- function (timePOSIXct, timeZone = "UTC") {
-    timeDate <- as.Date(trunc(as.POSIXct(format(timePOSIXct,
-        tz = timeZone), tz = timeZone), "days"))
-    return(timeDate)
-}
 
+#CalcDateTrunc <- function (timePOSIXct, timeZone = "UTC") {
+#    timeDate <- as.Date(trunc(as.POSIXct(format(timePOSIXct,
+#        tz = timeZone), tz = timeZone), "days"))
+#    return(timeDate)
+#}
+
+
+#Convert2Daily <- function(str) {
+#   str$Date <- CalcDateTrunc(str$POSIXct)
+#   setkey(str, Date)
+#   str.d <- str[, list(q_cms=mean(q_cms, na.rm=TRUE)), by = "Date"]
+#   str.d$POSIXct <- as.POSIXct(paste0(str.d$Date, " 08:00"), tz="UTC")
+#   str.d
+#}
 
 Convert2Daily <- function(str) {
-   str$Date <- CalcDateTrunc(str$POSIXct)
-   setkey(str, Date)
-   str.d <- str[, list(q_cms=mean(q_cms, na.rm=TRUE)), by = "Date"]
-   str.d$POSIXct <- as.POSIXct(paste0(str.d$Date, " 08:00"), tz="UTC")
+   
+   str$FakeDate <- str$Time_CST +  (23-8)*3600
+   str$Date <- substr(as.character(str$FakeDate), 1, 10)
+   str.d <- str[, .(q_cms = mean(q_cms)), by = c("Date")]
+   str.d$POSIXct <- as.POSIXct(paste0(str.d$Date, " 00:00"), tz="UTC")
+   str.d$Date <- as.Date(str.d$Date, format = "%Y-%m-%d")
    str.d
 }
-
 # Read streamflow from netcdf file
 
 #ReadChFile <- function(file, idList){
